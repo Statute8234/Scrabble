@@ -1,0 +1,208 @@
+import pygame
+import pygame.sprite
+# ---------------
+import random, time, sys
+import string
+from nltk.corpus import wordnet
+# screen
+pygame.init()
+screenWidth, screenHeight = 700, 700
+screen = pygame.display.set_mode((screenWidth, screenHeight))
+pygame.display.set_caption("Scrabble")
+clock = pygame.time.Clock()
+pygame.display.flip()
+# color
+def RANDOM_COLOR():
+    return (random.randint(0,255),random.randint(0,255),random.randint(0,255))
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
+WHITE = (255, 255, 255)
+BLACK = (0,0,0)
+PINK = (255,192,203)
+LIGHT_BLUE = (173,216,230)
+GOLD = (255,215,0)
+YELLOW = (255,255,0)
+SPACE_COLOR = (220,205,173,255)
+# text
+class Text:
+    def __init__(self, text, font_size, color, position):
+        self.text = text
+        self.font_size = font_size
+        self.color = color
+        self.position = position
+        self.font = pygame.font.Font(None, self.font_size)  # You can specify a font file or use None for default font
+        self.rendered_text = None
+
+    def update(self, new_text):
+        self.text = new_text
+        self.rendered_text = None  # Clear the rendered text to update it
+
+    def render(self, screen):
+        if self.rendered_text is None:
+            self.rendered_text = self.font.render(self.text, True, self.color)
+        screen.blit(self.rendered_text, self.position)
+spellWord = Text("Current Word:",20,BLACK,(screenWidth / 2, screenHeight - 85))
+# button
+class Button:
+    def __init__(self, x, y, width, height, text, active_color, inactive_color,outlineSize):
+        self.x = x
+        self.y = y
+        self.width = width
+        self.height = height
+        self.text = text
+        self.active_color = active_color
+        self.inactive_color = inactive_color
+        self.color = self.inactive_color
+        self.textColor = BLACK
+        self.font_size = min(self.width // len(self.text) - 10, self.height)
+        self.font = pygame.font.Font(None, self.font_size)
+        self.clicked = False
+        self.wordSpace = False
+        self.origional_text = text
+        self.outlineSize = outlineSize
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, self.color, (self.x, self.y, self.width, self.height), self.outlineSize)
+        text_surface = self.font.render(self.text, True, self.textColor)
+        text_rect = text_surface.get_rect(center=(self.x + self.width // 2, self.y + self.height // 2))
+        screen.blit(text_surface, text_rect)
+    
+    def handle_event(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+        if self.x < mouse_pos[0] < self.x + self.width and self.y < mouse_pos[1] < self.y + self.height:
+            self.color = self.active_color
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if event.button == 1:
+                    self.clicked = True
+                    self.color = self.active_color
+        else:
+            self.color = self.inactive_color
+
+    def reset(self):
+        self.clicked = False
+        self.color = self.inactive_color
+# color space
+def ColorSpace(x, y):
+    if (x == 0 or x == 14) and (y == 0 or y == 14):
+        return "3_W"
+    if (x == 0 or x == 14) and (y == 14 / 2):
+        return "3_W"
+    if (x == 14 / 2) and (y == 0 or y == 14):
+        return "3_W"
+    if (x, y) in [(13, 1), (12, 2), (11, 3), (10, 4)] or (x, y) in [(1, 1), (2, 2), (3, 3), (4, 4)]:
+        return "2_W"
+    if (x, y) in [(1, 13), (2, 12), (3, 11), (4, 10)] or (x, y) in [(13, 13), (12, 12), (11, 11), (10, 10)]:
+        return "2_W"
+    if (x, y) in [(5, 5), (9, 5), (5, 9), (9, 9)] or (x, y) in [(1, 9), (1, 5), (5, 13), (9, 13)] or (x, y) in [(13, 9), (13, 5), (5, 1), (9, 1)]:
+        return "3_L"
+    if (x, y) in [(0, 3), (0, 11), (2, 6), (2, 8), (3, 7), (6, 6)] or (x, y) in [(3, 14), (11, 14), (6, 12), (8, 12), (7, 11), (6, 8)]:
+        return "2_L"
+    if (x, y) in [(14, 3), (14, 11), (12, 6), (12, 8), (11, 7)] or (x, y) in [(3, 0), (11, 0), (6, 2), (8, 2), (7, 3), (8, 6), (8, 8)]:
+        return "2_L"
+    if (x == 14 / 2) and (y == 14 / 2):
+        return "S"
+    return False
+# space
+bord_list = []
+for x in range(15):
+    for y in range(15):
+        bord_space = Button((x * 40) + 40, (y * 40) + 10, 40, 40, "_", GREEN, WHITE, 1)
+        if ColorSpace(x,y) == "3_W":
+            bord_space.inactive_color = RED
+            bord_space.text = "3W"
+            bord_space.outlineSize = 0
+        if ColorSpace(x,y) == "2_W":
+            bord_space.inactive_color = PINK
+            bord_space.text = "2W"
+            bord_space.outlineSize = 0
+        if ColorSpace(x,y) == "3_L":
+            bord_space.inactive_color = BLUE
+            bord_space.text = "3L"
+            bord_space.outlineSize = 0
+        if ColorSpace(x,y) == "2_L":
+            bord_space.inactive_color = LIGHT_BLUE
+            bord_space.text = "2L"
+            bord_space.outlineSize = 0
+        if ColorSpace(x,y) == "S":
+            bord_space.inactive_color = GOLD
+            bord_space.text = "S"
+            bord_space.outlineSize = 0
+        bord_list.append(bord_space)
+
+# letter list 
+letter_list = []
+for x in range(7):
+    lestters = Button((x * 60) + 165, screenHeight - 60, 50, 50, random.choice(string.ascii_uppercase), RED, BLACK, 2)
+    letter_list.append(lestters)
+# loop
+currentWord = "Current Word: "
+checkWord = ""
+running = True
+wordIndex = 0
+while running:
+    events = pygame.event.get()
+    for event in events:
+        if event.type == pygame.QUIT:
+            running = False
+            sys.exit()
+        for item in letter_list:
+            item.handle_event(event)
+            if item.clicked:
+                if item.y == screenHeight - 60:
+                    item.y -= 10
+                    checkWord += item.text
+                else:
+                    index = checkWord.find(item.text)
+                    if index != -1:
+                        checkWord = checkWord[:index] + checkWord[index+1:]
+                    item.y = screenHeight - 60
+                currentWord = "Current Word: " + checkWord
+                item.reset()
+        # spaces
+        for space in bord_list:
+            space.handle_event(event)
+            if space.clicked and not(space.wordSpace):
+                if wordIndex < len(checkWord):
+                    space.inactive_color = YELLOW
+                    space.text = checkWord[wordIndex]
+                    space.reset()
+                    wordIndex += 1
+                    space.wordSpace = True
+                else:
+                    if wordnet.synsets(checkWord.lower()):
+                        for item in letter_list: 
+                            if item.y != screenHeight - 60:
+                                checkWord = ""
+                                currentWord = "Current Word: " + checkWord
+                                lestters = Button(item.x, screenHeight - 60, 50, 50, random.choice(string.ascii_uppercase), RED, BLACK, 2)
+                                letter_list.append(lestters)
+                                letter_list.remove(item)
+                                wordIndex = 0
+                    else:
+                        for item in letter_list: 
+                            if item.y != screenHeight - 60:
+                                checkWord = ""
+                                currentWord = "Current Word: " + checkWord
+                                item.y = screenHeight - 60
+                                wordIndex = 0
+                                space.wordSpace = False
+                                space.origional_text
+
+    screen.fill(SPACE_COLOR)
+    spellWord.update(currentWord)
+    spellWord.render(screen)
+    if wordnet.synsets(checkWord.lower()):
+        spellWord.color = RED
+    else:
+        spellWord.color = BLACK
+        
+    for item in letter_list:
+        item.draw(screen)
+    # ---
+    for space in bord_list:
+        space.draw(screen)
+    # update
+    pygame.display.flip()
+    pygame.display.update()
+    clock.tick(64)
