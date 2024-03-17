@@ -7,7 +7,7 @@ The code is a Python Scrabble game that uses the Pygame library to create a grap
 - [About](#about)
 - [Features](#features)
 - [Imports](#Imports)
-- [Rating: 7/10](#Rating)
+- [Rating: 6/10](#Rating)
 
 # About
 
@@ -23,4 +23,6 @@ pygame, pygame.sprite, nltk, string, random, time, sys, nltk.corpus
 
 # Rating
 
-The Scrabble game offers a graphical interface, game logic, colorful graphics, and features for skipping turns and replenishing letter tiles. However, it lacks comments and documentation, is overly complex, and may lack features like multiplayer support or word checking. Additionally, the game may lack error handling and validation for user input, potentially leading to unexpected gameplay behavior. Further improvements could improve readability and maintainability.
+The code provides a functional implementation of a Scrabble-like game using Pygame, featuring features such as letter display, board placement, and point calculation. It is modularized into separate sections for handling game logic, UI rendering, and event handling, promoting code organization and reusability. The UI design uses Pygame's capabilities to create a visually appealing game interface with colorful buttons and text elements. The code implements basic Scrabble rules, adding depth and authenticity to the gameplay experience.
+However, the code could benefit from simplification and refactoring, especially in areas with nested loops and conditionals. Implementing robust error handling mechanisms can enhance the stability and user experience of the game. The code lacks inline comments or documentation explaining the purpose of each function, class, or section of code, which could help other developers understand the codebase more easily.
+Scalability challenges may arise due to the current design, as the game grows in complexity or additional features are added. To improve, the code should be refactored into smaller, more manageable functions or methods, improve error handling, document the codebase, evaluate the code for scalability, and optimize performance by identifying bottlenecks or inefficient code patterns. This will help maintain and extend the codebase without significant refactoring.
