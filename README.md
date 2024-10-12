@@ -1,6 +1,11 @@
 # Scrabble
-
 The code is a Python Scrabble game that uses the Pygame library to create a graphical interface for players to form words and score points.
+
+[![Static Badge](https://img.shields.io/badge/pygame-black)](https://pypi.org/project/pygame/)
+[![Static Badge](https://img.shields.io/badge/nltk-blue)](https://pypi.org/project/nltk/)
+[![Static Badge](https://img.shields.io/badge/string-blue)](https://pypi.org/project/string/)
+[![Static Badge](https://img.shields.io/badge/random,-purple)](https://pypi.org/project/random,/)
+[![Static Badge](https://img.shields.io/badge/nltk-blue)](https://pypi.org/project/nltk/)
 
 ## Table of Contents
 
